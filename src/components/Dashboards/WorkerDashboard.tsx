@@ -9,7 +9,6 @@ const WorkerDashboard = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Simulating user data retrieval from local storage or login response
     const storedUser = JSON.parse(localStorage.getItem("user") || "null");
     if (!storedUser) {
       setError("User not found.");
@@ -46,11 +45,21 @@ const WorkerDashboard = () => {
 
   return (
     <div
-      className="vh-100 vw-100 d-flex flex-column"
-      style={{ backgroundColor: "#E6E6FA" }}
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#E6E6FA",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      {/* Header Section (Top Left) */}
-      <div className="p-4">
+      {/* Top-left Header (Welcome message and Crew Name) */}
+      <div
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "20px",
+        }}
+      >
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -63,10 +72,8 @@ const WorkerDashboard = () => {
         )}
       </div>
 
-      {/* JobList Component (Takes up remaining space) */}
-      <div className="flex-grow-1 d-flex justify-content-center align-items-center">
-        {user && <JobList userId={user.id} />}
-      </div>
+      {/* JobList should take up remaining space */}
+      <div style={{ flexGrow: 1 }}>{user && <JobList userId={user.id} />}</div>
     </div>
   );
 };
