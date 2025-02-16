@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
-import { FaClipboardList, FaUsers, FaProjectDiagram } from "react-icons/fa";
+import {
+  FaClipboardList,
+  FaUsers,
+  FaProjectDiagram,
+  Fa500Px,
+  FaAd,
+} from "react-icons/fa";
+import { Fa0, Fa42Group, Fa9, FaArrowsToDot } from "react-icons/fa6";
 
 const Sidebar = () => {
   return (
@@ -46,7 +53,7 @@ const Sidebar = () => {
             <FaProjectDiagram style={{ marginRight: "10px" }} /> Job Queue
           </Link>
         </li>
-        <li>
+        <li style={{ marginBottom: "15px" }}>
           <Link
             to="/crews"
             style={{
@@ -56,7 +63,21 @@ const Sidebar = () => {
               alignItems: "center",
             }}
           >
-            <FaUsers style={{ marginRight: "10px" }} /> Crews
+            <FaArrowsToDot style={{ marginRight: "10px" }} /> Crews
+          </Link>
+        </li>
+
+        <li style={{ marginBottom: "15px" }}>
+          <Link
+            to="/users"
+            style={{
+              textDecoration: "none",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <FaUsers style={{ marginRight: "10px" }} /> Users
           </Link>
         </li>
       </ul>

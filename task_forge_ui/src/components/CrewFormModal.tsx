@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Modal, Button, Form } from "react-bootstrap";
+import { updateCrewByCrewId } from "../services/crewService";
+import axios from "axios";
 
 interface User {
   id: number;
@@ -48,13 +49,28 @@ const CrewFormModal: React.FC<CrewFormModalProps> = ({
 
   const fetchSupervisors = async () => {
     try {
-      const { data } = await axios.get(
-        "http://localhost:5272/get-top-users?top=200"
+      // Get all user roles
+      const { data: roles } = await axios.get(
+        "http://localhost:5272/get-all-user-roles"
       );
-      const filteredSupervisors = data.filter(
-        (user: User) => user.role === "supervisor"
+
+      // Filter to only get users with roleId: 1 (Supervisors)
+      const supervisorRoles = roles.filter(
+        (role: { roleId: number }) => role.roleId === 1
       );
-      setSupervisors(filteredSupervisors);
+
+      // Fetch full user info for supervisors
+      const supervisorPromises = supervisorRoles.map(
+        async (role: { userId: number }) => {
+          const { data: user } = await axios.get(
+            `http://localhost:5272/get-user?userId=${role.userId}`
+          );
+          return { id: user.id, name: user.name };
+        }
+      );
+
+      const supervisorList = await Promise.all(supervisorPromises);
+      setSupervisors(supervisorList);
     } catch (error) {
       console.error("Error fetching supervisors", error);
     }
@@ -64,12 +80,13 @@ const CrewFormModal: React.FC<CrewFormModalProps> = ({
     setIsSubmitting(true);
     try {
       if (crew) {
-        // Update existing crew
-        await axios.patch(
-          `http://localhost:5272/crews/update-crew?crewId=${crew.id}&supervisorId=${selectedSupervisor}`
-        );
+        // ✅ Update existing crew using correct JSON format
+        await updateCrewByCrewId(crew.id, {
+          Name: crewName,
+          SupervisorId: selectedSupervisor,
+        });
       } else {
-        // Create new crew
+        // ✅ Create new crew
         await axios.post(
           `http://localhost:5272/crews/create-crew?name=${crewName}`
         );

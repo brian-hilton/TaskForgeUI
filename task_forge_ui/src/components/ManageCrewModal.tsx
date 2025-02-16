@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, ListGroup } from "react-bootstrap";
 
 interface User {
   id: number;
@@ -43,7 +43,15 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
       const { data } = await axios.get(
         `http://localhost:5272/crews/get-all-members?crewId=${crewId}`
       );
-      setCrewMembers(data);
+      const membersWithNames = await Promise.all(
+        data.map(async (member: CrewMember) => {
+          const { data: user } = await axios.get(
+            `http://localhost:5272/get-user?userId=${member.userId}`
+          );
+          return { ...member, name: user.name };
+        })
+      );
+      setCrewMembers(membersWithNames);
     } catch (error) {
       console.error("Error fetching crew members", error);
     }
@@ -80,6 +88,11 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
   };
 
   const handleRemoveMember = async (userId: number) => {
+    const confirmRemove = window.confirm(
+      "Are you sure you want to remove this crew member?"
+    );
+    if (!confirmRemove) return;
+
     try {
       await axios.delete(
         `http://localhost:5272/crews/delete-member?crewId=${crewId}&userId=${userId}`
@@ -101,10 +114,16 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
         ) : (
           <>
             <h5>Current Members</h5>
-            <ul>
+            <ListGroup>
               {crewMembers.map((member) => (
-                <li key={member.userId}>
-                  {member.userId} - {member.role}
+                <ListGroup.Item
+                  key={member.userId}
+                  className="d-flex justify-content-between align-items-center"
+                >
+                  <div>
+                    <strong>{member.name}</strong> -{" "}
+                    <span className="text-muted">{member.role}</span>
+                  </div>
                   <Button
                     variant="danger"
                     size="sm"
@@ -112,11 +131,11 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
                   >
                     Remove
                   </Button>
-                </li>
+                </ListGroup.Item>
               ))}
-            </ul>
+            </ListGroup>
 
-            <h5>Add Member</h5>
+            <h5 className="mt-3">Add Member</h5>
             <select
               className="form-control mb-2"
               onChange={(e) => setSelectedUser(Number(e.target.value))}

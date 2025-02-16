@@ -1,34 +1,24 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import CrewCard from "../components/CrewCard";
 import ManageCrewModal from "../components/ManageCrewModal";
 import CrewFormModal from "../components/CrewFormModal";
-
-interface Crew {
-  id: number;
-  supervisorId: number | null;
-  name: string;
-}
-
-interface User {
-  id: number;
-  name: string;
-}
-
-interface CrewMember {
-  crewId: number;
-  userId: number;
-  role: string;
-}
+import { useAuth } from "../context/AuthContext";
+import {
+  fetchAllCrews,
+  fetchUserById,
+  fetchCrewMembers,
+} from "../services/crewService"; // ✅ Import service
 
 const CrewsPage: React.FC = () => {
+  const { user } = useAuth();
+
   const [crews, setCrews] = useState<Crew[]>([]);
   const [supervisors, setSupervisors] = useState<{ [key: number]: string }>({});
   const [crewMembers, setCrewMembers] = useState<{ [key: number]: string[] }>(
     {}
   );
   const [selectedCrew, setSelectedCrew] = useState<Crew | null>(null);
-  const [userRole, setUserRole] = useState<string>("project manager"); // Mock role for now
+  const [userRole, setUserRole] = useState<string>("project manager");
   const [showManageModal, setShowManageModal] = useState(false);
   const [showCrewForm, setShowCrewForm] = useState(false);
 
@@ -38,17 +28,14 @@ const CrewsPage: React.FC = () => {
 
   const fetchCrews = async () => {
     try {
-      const { data: crewsData } = await axios.get(
-        "http://localhost:5272/crews/all-crews"
-      );
+      const crewsData = await fetchAllCrews(); // ✅ Use service
+
       setCrews(crewsData);
 
       // Fetch supervisor names
       const supervisorPromises = crewsData.map(async (crew: Crew) => {
         if (crew.supervisorId) {
-          const { data: supervisor } = await axios.get(
-            `http://localhost:5272/get-user?userId=${crew.supervisorId}`
-          );
+          const supervisor = await fetchUserById(crew.supervisorId);
           return { [crew.id]: supervisor.name };
         }
         return { [crew.id]: "No Supervisor" };
@@ -56,14 +43,10 @@ const CrewsPage: React.FC = () => {
 
       // Fetch crew members
       const memberPromises = crewsData.map(async (crew: Crew) => {
-        const { data: members } = await axios.get(
-          `http://localhost:5272/crews/get-all-members?crewId=${crew.id}`
-        );
+        const members = await fetchCrewMembers(crew.id);
         const memberNames = await Promise.all(
           members.map(async (member: CrewMember) => {
-            const { data: user } = await axios.get(
-              `http://localhost:5272/get-user?userId=${member.userId}`
-            );
+            const user = await fetchUserById(member.userId);
             return user.name;
           })
         );
@@ -80,6 +63,11 @@ const CrewsPage: React.FC = () => {
     }
   };
 
+  const visibleCrews =
+    user?.role === "supervisor"
+      ? crews.filter((c) => c.supervisorId === user.id)
+      : crews;
+
   return (
     <div className="container mt-4">
       <h2>Crews</h2>
@@ -93,7 +81,7 @@ const CrewsPage: React.FC = () => {
       )}
 
       <div className="row">
-        {crews.map((crew) => (
+        {visibleCrews.map((crew) => (
           <div key={crew.id} className="col-md-6 mb-4">
             <CrewCard
               crewId={crew.id}
@@ -110,8 +98,9 @@ const CrewsPage: React.FC = () => {
               }}
               onDeleteCrew={async () => {
                 try {
-                  await axios.delete(
-                    `http://localhost:5272/crews/delete-crew?crewId=${crew.id}`
+                  await fetch(
+                    `${BASE_URL}/crews/delete-crew?crewId=${crew.id}`,
+                    { method: "DELETE" }
                   );
                   fetchCrews();
                 } catch (error) {
