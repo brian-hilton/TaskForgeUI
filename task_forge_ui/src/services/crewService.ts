@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5272";
+import BASE_URL from "../config/baseUrl"
 
 export const fetchAllCrews = async () => {
   const response = await fetch(`${BASE_URL}/crews/all-crews`);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Modal, Button, ListGroup } from "react-bootstrap";
+import BASE_URL from "../config/baseUrl";
 
 interface User {
   id: number;
@@ -41,12 +42,12 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
   const fetchCrewMembers = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:5272/crews/get-all-members?crewId=${crewId}`
+        `${BASE_URL}/crews/get-all-members?crewId=${crewId}`
       );
       const membersWithNames = await Promise.all(
         data.map(async (member: CrewMember) => {
           const { data: user } = await axios.get(
-            `http://localhost:5272/get-user?userId=${member.userId}`
+            `${BASE_URL}/get-user?userId=${member.userId}`
           );
           return { ...member, name: user.name };
         })
@@ -59,9 +60,7 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
 
   const fetchAvailableUsers = async () => {
     try {
-      const { data } = await axios.get(
-        `http://localhost:5272/get-top-users?top=200`
-      );
+      const { data } = await axios.get(`${BASE_URL}/get-top-users?top=200`);
       const crewUserIds = new Set(crewMembers.map((member) => member.userId));
       const filteredUsers = data.filter(
         (user: User) => !crewUserIds.has(user.id)
@@ -79,7 +78,7 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
 
     try {
       await axios.post(
-        `http://localhost:5272/crews/add-member?crewId=${crewId}&userId=${selectedUser}&role=${role}`
+        `${BASE_URL}/crews/add-member?crewId=${crewId}&userId=${selectedUser}&role=${role}`
       );
       fetchCrewMembers(); // Refresh crew members after adding
     } catch (error) {
@@ -95,7 +94,7 @@ const ManageCrewModal: React.FC<ManageCrewModalProps> = ({
 
     try {
       await axios.delete(
-        `http://localhost:5272/crews/delete-member?crewId=${crewId}&userId=${userId}`
+        `${BASE_URL}/crews/delete-member?crewId=${crewId}&userId=${userId}`
       );
       fetchCrewMembers(); // Refresh crew members after removal
     } catch (error) {

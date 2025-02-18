@@ -3,11 +3,12 @@ import CrewCard from "../components/CrewCard";
 import ManageCrewModal from "../components/ManageCrewModal";
 import CrewFormModal from "../components/CrewFormModal";
 import { useAuth } from "../context/AuthContext";
+import BASE_URL from "../config/baseUrl";
 import {
   fetchAllCrews,
   fetchUserById,
   fetchCrewMembers,
-} from "../services/crewService"; // ✅ Import service
+} from "../services/crewService"; // Import service
 
 const CrewsPage: React.FC = () => {
   const { user } = useAuth();
@@ -28,7 +29,7 @@ const CrewsPage: React.FC = () => {
 
   const fetchCrews = async () => {
     try {
-      const crewsData = await fetchAllCrews(); // ✅ Use service
+      const crewsData = await fetchAllCrews(); // Use service
 
       setCrews(crewsData);
 

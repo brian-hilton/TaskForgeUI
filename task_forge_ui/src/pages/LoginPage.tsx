@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import BASE_URL from "../config/baseUrl";
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -15,7 +16,7 @@ const LoginPage: React.FC = () => {
     setError("");
 
     try {
-      const { data } = await axios.post("http://localhost:5272/login", {
+      const { data } = await axios.post(`${BASE_URL}/login`, {
         email,
         password,
       });

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { updateCrewByCrewId } from "../services/crewService";
 import axios from "axios";
+import BASE_URL from "../config/baseUrl";
 
 interface User {
   id: number;
@@ -50,9 +51,7 @@ const CrewFormModal: React.FC<CrewFormModalProps> = ({
   const fetchSupervisors = async () => {
     try {
       // Get all user roles
-      const { data: roles } = await axios.get(
-        "http://localhost:5272/get-all-user-roles"
-      );
+      const { data: roles } = await axios.get(`${BASE_URL}/get-all-user-roles`);
 
       // Filter to only get users with roleId: 1 (Supervisors)
       const supervisorRoles = roles.filter(
@@ -63,7 +62,7 @@ const CrewFormModal: React.FC<CrewFormModalProps> = ({
       const supervisorPromises = supervisorRoles.map(
         async (role: { userId: number }) => {
           const { data: user } = await axios.get(
-            `http://localhost:5272/get-user?userId=${role.userId}`
+            `${BASE_URL}/get-user?userId=${role.userId}`
           );
           return { id: user.id, name: user.name };
         }
@@ -80,16 +79,14 @@ const CrewFormModal: React.FC<CrewFormModalProps> = ({
     setIsSubmitting(true);
     try {
       if (crew) {
-        // ✅ Update existing crew using correct JSON format
+        // Update existing crew using correct JSON format
         await updateCrewByCrewId(crew.id, {
           Name: crewName,
           SupervisorId: selectedSupervisor,
         });
       } else {
-        // ✅ Create new crew
-        await axios.post(
-          `http://localhost:5272/crews/create-crew?name=${crewName}`
-        );
+        // Create new crew
+        await axios.post(`${BASE_URL}/crews/create-crew?name=${crewName}`);
       }
       refreshCrews(); // Refresh crew list after successful operation
       handleClose();
