@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { fetchAllUserRoles, fetchUserById } from "../services/userService";
+import {
+  fetchAllUserRoles,
+  fetchUserById,
+  fetchAllRoles,
+} from "../services/userService";
 import UserCard from "../components/UserCard";
 
 interface User {
@@ -10,6 +14,7 @@ interface User {
 
 const ManageUserPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [rolesMap, setRolesMap] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
     loadUsers();
@@ -17,21 +22,36 @@ const ManageUserPage: React.FC = () => {
 
   const loadUsers = async () => {
     try {
-      const rolesData = await fetchAllUserRoles();
+      const rolesData = await fetchAllRoles();
+      const roleMapping: { [key: number]: string } = {};
 
-      // Fetch user details based on role data
-      const userPromises = rolesData.map(
-        async (roleEntry: { userId: number; roleId: number }) => {
+      rolesData.forEach((role: { id: number; name: string }) => {
+        roleMapping[role.id] = role.name;
+      });
+      setRolesMap(roleMapping);
+
+      const rolesList = await fetchAllUserRoles();
+
+      // Ensure userId exists before making a request
+      const userPromises = rolesList.map(
+        async (roleEntry: { userId?: number; roleId: number }) => {
+          if (!roleEntry.userId) {
+            console.warn("Skipping user due to missing userId:", roleEntry);
+            return null;
+          }
+
           const userData = await fetchUserById(roleEntry.userId);
+          if (!userData) return null;
+
           return {
             id: userData.id,
             name: userData.name,
-            role: `Role ID: ${roleEntry.roleId}`,
+            role: roleMapping[roleEntry.roleId] || "Unknown Role",
           };
         }
       );
 
-      const usersList = await Promise.all(userPromises);
+      const usersList = (await Promise.all(userPromises)).filter(Boolean); // ✅ Remove null values
       setUsers(usersList);
     } catch (error) {
       console.error("Error fetching users", error);
