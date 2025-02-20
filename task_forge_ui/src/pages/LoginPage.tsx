@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import BASE_URL from "../config/baseUrl";
 
 const LoginPage: React.FC = () => {
@@ -25,10 +25,14 @@ const LoginPage: React.FC = () => {
         login({
           id: data.id,
           name: data.name,
-          role: data.role, // Ensure the backend returns the role
+          role: data.role,
           email: data.email,
         });
-        navigate("/dashboard");
+
+        // Redirect only if user is actually logged in
+        if (data.id) {
+          navigate("/dashboard");
+        }
       }
     } catch (err) {
       setError("Invalid email or password.");
@@ -66,6 +70,9 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
       </div>
+      <p className="mt-3">
+        Don't have an account? <Link to="/register">Register Here</Link>
+      </p>
     </div>
   );
 };

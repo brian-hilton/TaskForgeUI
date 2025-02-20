@@ -38,12 +38,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [user]);
 
-  const login = (userData: User) => {
-    fetchUserRoles(userData.id).then((roles) => {
-      const updatedUser = { ...userData, role: roles[roles.length - 1].name };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setUser(updatedUser);
-    });
+  const login = async (userData: User) => {
+    const roles = await fetchUserRoles(userData.id);
+    const updatedUser = {
+      ...userData,
+      role: roles[roles.length - 1]?.name || "worker",
+    };
+
+    console.log("Storing user in localStorage:", updatedUser);
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
   };
 
   const logout = () => {
