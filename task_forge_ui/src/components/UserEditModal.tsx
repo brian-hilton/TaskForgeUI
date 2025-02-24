@@ -65,7 +65,7 @@ const UserEditModal: React.FC<{
               </div>
 
               <div className="form-group">
-                <label>Location</label>
+                <label>New Email</label>
                 <input
                   type="text"
                   className="form-control"
@@ -78,7 +78,7 @@ const UserEditModal: React.FC<{
               </div>
 
               <div className="form-group">
-                <label>Status</label>
+                <label>Change Password</label>
                 <input
                   type="text"
                   className="form-control"

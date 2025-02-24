@@ -1,13 +1,19 @@
 import React, { useState } from "react";
 import { updateUser, deleteUser } from "../services/userService";
+import UserEditModal from "./UserEditModal";
 
 interface User {
   id: number;
   name: string;
+  email: string;
+  password: string;
   role: string;
 }
 
-const UserCard: React.FC<{ user: User }> = ({ user }) => {
+const UserCard: React.FC<{ user: User; refreshUsers: () => void }> = ({
+  user,
+  refreshUsers,
+}) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   return (
@@ -22,14 +28,19 @@ const UserCard: React.FC<{ user: User }> = ({ user }) => {
           className="btn btn-warning"
           onClick={() => setShowEditModal(true)}
         >
-          Edit (Stub)
+          Edit
         </button>
         <button className="btn btn-danger" onClick={() => deleteUser(user.id)}>
           Delete (Stub)
         </button>
       </div>
 
-      <UserEditModal />
+      <UserEditModal
+        show={showEditModal}
+        handleClose={() => setShowEditModal(false)}
+        user={user}
+        refreshUsers={refreshUsers}
+      />
     </div>
   );
 };
