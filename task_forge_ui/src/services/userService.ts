@@ -21,12 +21,18 @@ export const createUser = async (userData: object) => {
   console.log("Stub: Create User", userData);
 };
 
+
 export const updateUser = async (userId: number, userData: object) => {
-  console.log("Stub: Update User", userId, userData);
+  const response = await fetch(`${BASE_URL}/users/update-user?userId=${userId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+  });
+  return response.json();
 };
 
 export const deleteUser = async (userId: number) => {
-  console.log("Stub: Delete User", userId);
+  return fetch(`${BASE_URL}/users/delete-user?userId=${userId}`, {method: "DELETE"});
 };
 
 export const fetchAllRoles = async () => {

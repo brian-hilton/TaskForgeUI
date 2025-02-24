@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { updateUser, deleteUser } from "../services/userService";
 
 interface User {
@@ -8,6 +8,8 @@ interface User {
 }
 
 const UserCard: React.FC<{ user: User }> = ({ user }) => {
+  const [showEditModal, setShowEditModal] = useState(false);
+
   return (
     <div className="card p-3 shadow-sm">
       <h4>{user.name}</h4>
@@ -18,7 +20,7 @@ const UserCard: React.FC<{ user: User }> = ({ user }) => {
       <div className="d-flex gap-2">
         <button
           className="btn btn-warning"
-          onClick={() => updateUser(user.id, { name: user.name })}
+          onClick={() => setShowEditModal(true)}
         >
           Edit (Stub)
         </button>
@@ -26,6 +28,8 @@ const UserCard: React.FC<{ user: User }> = ({ user }) => {
           Delete (Stub)
         </button>
       </div>
+
+      <UserEditModal />
     </div>
   );
 };
