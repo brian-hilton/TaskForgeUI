@@ -14,7 +14,6 @@ const DashboardPage: React.FC = () => {
           : "bg-gray-100 text-gray-900"
       }`}
     >
-      {/* Sidebar */}
       <div
         className={`w-1/4 p-5 ${
           theme === "dark" ? "bg-gray-800" : "bg-white"
@@ -29,12 +28,10 @@ const DashboardPage: React.FC = () => {
         </ul>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-semibold">Dashboard Overview</h2>
 
-          {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full bg-gray-300 dark:bg-gray-700"
@@ -47,11 +44,9 @@ const DashboardPage: React.FC = () => {
           </button>
         </div>
 
-        {/* User Info & Widgets */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
           <UserInfoCard />
 
-          {/* Widgets */}
           <div
             className={`p-4 shadow rounded-lg flex items-center space-x-3 ${
               theme === "dark" ? "bg-gray-800" : "bg-white"
